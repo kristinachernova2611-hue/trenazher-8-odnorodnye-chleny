@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Запятая-квест: однородные члены</title>
+<style>
+:root{
+  --bg:#F8FAFC; --card:#FFFFFF; --text:#0F172A; --muted:#475569; --accent:#0369A1; --accent2:#E11D48;
+  --ok:#15803D; --okbg:#DCFCE7; --bad:#B91C1C; --badbg:#FEE2E2; --hl:#FDE68A; --line:#CBD5E1; --btn:#E2E8F0;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0F172A; --card:#1E293B; --text:#F1F5F9; --muted:#CBD5E1; --accent:#38BDF8; --accent2:#FB7185;
+    --ok:#4ADE80; --okbg:#14532D; --bad:#FCA5A5; --badbg:#7F1D1D; --hl:#FDE68A; --line:#334155; --btn:#334155;
+  }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--text)}
+body{font-family:"Segoe UI",Calibri,Arial,sans-serif;font-size:20px;line-height:1.45;-webkit-text-size-adjust:100%}
+main{max-width:760px;margin:0 auto;padding:16px 16px 40px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.brand{font-weight:800;font-size:22px;color:var(--accent)}
+.stat{font-size:17px;color:var(--muted)}
+.bar{height:10px;background:var(--btn);border-radius:6px;overflow:hidden;margin-bottom:16px}
+.bar>div{height:100%;background:var(--accent);width:0;transition:width .3s}
+.card{background:var(--card);border-radius:20px;padding:22px 20px;box-shadow:0 2px 10px rgba(15,23,42,.08);border:1px solid var(--line)}
+.lvl{font-size:16px;font-weight:700;color:var(--accent);text-transform:uppercase;letter-spacing:.04em}
+h1{font-size:30px;margin:6px 0 12px;line-height:1.2}
+h2{font-size:24px;margin:4px 0 14px;line-height:1.3}
+p{margin:8px 0}
+.q{font-size:22px;font-weight:600;margin:4px 0 16px}
+.sent{font-size:24px;line-height:2.1;margin:8px 0 16px;word-wrap:break-word}
+button{font:inherit;color:var(--text);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.btn{display:block;width:100%;min-height:56px;padding:12px 16px;margin:10px 0;border-radius:14px;border:2px solid var(--line);background:var(--card);font-size:21px;text-align:left}
+.btn:hover{border-color:var(--accent)}
+.main-btn{display:block;width:100%;min-height:60px;margin:14px 0 0;border:0;border-radius:14px;background:var(--accent);color:#fff;font-size:22px;font-weight:700}
+.dark .main-btn{color:#0F172A}
+@media (prefers-color-scheme: dark){.main-btn{color:#0F172A}}
+.sec-btn{display:block;width:100%;min-height:56px;margin:10px 0 0;border-radius:14px;border:2px solid var(--accent);background:transparent;color:var(--accent);font-size:20px;font-weight:700}
+.row{display:flex;flex-wrap:wrap;gap:10px}
+.row .btn{width:auto;flex:1 1 120px;text-align:center;font-size:24px;font-weight:700}
+.good{background:var(--okbg)!important;border-color:var(--ok)!important}
+.badc{background:var(--badbg)!important;border-color:var(--bad)!important}
+.shake{animation:sh .35s}
+@keyframes sh{20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+.slot{display:inline-block;min-width:64px;min-height:44px;padding:0 10px;border:3px dashed var(--accent);border-radius:10px;text-align:center;vertical-align:middle;line-height:38px;font-weight:800;color:var(--accent)}
+.fb{margin-top:16px;padding:14px 16px;border-radius:14px;font-size:19px;display:none}
+.fb.show{display:block}
+.fb.ok{background:var(--okbg);border:2px solid var(--ok)}
+.fb.no{background:var(--badbg);border:2px solid var(--bad)}
+.fb b{display:block;margin-bottom:4px;font-size:21px}
+/* commas */
+.cw{display:inline}
+.word{white-space:nowrap}
+.gapb{display:inline-block;width:36px;min-height:56px;vertical-align:middle;margin:0 2px;border:2px dashed var(--line);border-radius:10px;background:transparent;font-size:30px;font-weight:900;line-height:1;padding:0;color:var(--accent)}
+.gapb.on{border-color:var(--accent);background:var(--hl);color:#0F172A}
+.gapb.wrongc{border-color:var(--bad);background:var(--badbg)}
+/* tokens */
+.tok{display:inline-block;min-height:56px;margin:5px 3px;padding:8px 12px;border-radius:12px;border:2px solid var(--line);background:var(--card);font-size:23px}
+/* sort */
+.pool{display:flex;flex-wrap:wrap;gap:10px;min-height:66px;padding:10px;border-radius:14px;background:var(--btn);margin-bottom:14px}
+.chip{min-height:56px;padding:10px 14px;border-radius:12px;border:2px solid var(--line);background:var(--card);font-size:20px;touch-action:none;user-select:none;-webkit-user-select:none}
+.chip.sel{border-color:var(--accent);background:var(--hl);color:#0F172A}
+.bins{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:520px){.bins{grid-template-columns:1fr}}
+.bin{min-height:150px;border:3px dashed var(--accent);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:8px;background:transparent;text-align:left}
+.bin .bt{font-weight:800;color:var(--accent);font-size:19px;padding:4px 2px}
+.bin.over{background:var(--hl)}
+.drag{position:fixed;z-index:50;pointer-events:none;opacity:.9;transform:translate(-50%,-50%) scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,.25)}
+/* match */
+.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.mgrid .btn{text-align:center;font-weight:700;margin:0}
+.pair1{background:#DBEAFE!important;border-color:#1D4ED8!important;color:#0F172A}
+.pair2{background:#FCE7F3!important;border-color:#BE185D!important;color:#0F172A}
+.pair3{background:#FEF3C7!important;border-color:#A16207!important;color:#0F172A}
+.pair4{background:#EDE9FE!important;border-color:#6D28D9!important;color:#0F172A}
+/* order */
+.olist{counter-reset:o;margin:0 0 10px;padding:0}
+.oitem{display:flex;align-items:center;gap:10px;min-height:56px;margin:8px 0;padding:10px 14px;border-radius:12px;border:2px solid var(--accent);background:var(--card);font-size:20px}
+.oitem .n{flex:0 0 36px;height:36px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center}
+.hintsmall{font-size:16px;color:var(--muted)}
+.stars{font-size:54px;letter-spacing:6px;margin:6px 0}
+.big{font-size:40px;font-weight:800;margin:4px 0}
+.shot{margin-top:14px;padding:14px;border-radius:14px;background:var(--hl);color:#0F172A;font-weight:700;font-size:20px}
+.streak{font-weight:700;color:var(--accent2)}
+ul.res{padding-left:22px}
+</style>
+</head>
+<body>
+<main>
+<header><div class="brand">⚔️ Запятая-квест</div><div class="stat" id="stat"></div></header>
+<div class="bar"><div id="bar"></div></div>
+<div class="card" id="app"></div>
+</main>
+<script>
+"use strict";
+const LEVELS = [
+ {name:"Уровень 1. Деревня однородных",
+  intro:"Здесь живут однородные члены, одиночные И, ИЛИ и строгие А и НО. Разомнись: 5 заданий.",
+  outro:"Уровень пройден! Даже кот в деревне перестал ставить запятую перед И.",
+  tasks:[
+  {t:"choice", sub:"Однородные члены", q:"В каком предложении есть однородные сказуемые?",
+   opts:["Друг прочитал сообщение и сразу ответил.","Друг прочитал длинное сообщение.","Мой друг вечером прочитал сообщение."], a:0,
+   why:"«Прочитал» и «ответил» — два действия одного друга. Это однородные сказуемые.",
+   hint:"Однородные сказуемые — несколько действий одного и того же подлежащего."},
+  {t:"tf", sub:"Одиночный И, ИЛИ", q:"Перед одиночным союзом И между однородными членами запятая не нужна.", a:true,
+   why:"Верно: «чай и печенье», «чай или сок» — без запятой.",
+   hint:"Вспомни «чай и печенье»: есть там запятая?"},
+  {t:"commas", sub:"Одиночный И, ИЛИ", q:"Нажми между словами там, где нужна запятая. Потом нажми «Проверить».",
+   words:["Я","надел","шапку","шарф","и","варежки."], a:[2],
+   why:"«Я надел шапку, шарф и варежки». Между «шапку» и «шарф» союза нет — запятая. Перед одиночным И — нет.",
+   hint:"Между однородными без союза ставится запятая, а перед одиночным И — нет."},
+  {t:"sign", sub:"Союзы А, НО", q:"Выбери, какой знак нужен в клетке.", before:"Пицца остыла", after:"но осталась вкусной.",
+   opts:[",",":","—","без знака"], a:",",
+   why:"Перед НО между однородными членами всегда ставится запятая.",
+   hint:"Перед А и НО между однородными членами запятая ставится всегда."},
+  {t:"err", sub:"Одиночный И, ИЛИ", q:"Нажми на слово, после которого стоит лишняя запятая.",
+   tokens:["Сестра","взяла","мой","зарядник,","и","не","вернула."], a:3,
+   why:"Правильно: «Сестра взяла мой зарядник и не вернула». Перед одиночным И запятая не нужна.",
+   hint:"Ищи запятую перед одиночным союзом И."}
+ ]},
+ {name:"Уровень 2. Лес повторяющихся союзов",
+  intro:"В этом лесу союзы ходят парами и даже по трое: и… и…, ни… ни…, то… то…, или… или…",
+  outro:"Лес пройден. Эхо до сих пор повторяет: «и…, и…, и…»",
+  tasks:[
+  {t:"sort", sub:"Повторяющиеся союзы", q:"Разложи сочетания по группам: перетащи пальцем или нажми на сочетание, а потом на группу. Клетка ▢ — место для запятой.",
+   bins:["Запятая нужна","Запятая не нужна"],
+   items:[["чай ▢ или кофе",1],["и чай ▢ и кофе",0],["не чай ▢ а кофе",0],["сыр ▢ и хлеб",1],["ни дождя ▢ ни снега",0],["тихо ▢ но уверенно",0],["пешком ▢ или на автобусе",1]],
+   why:"Запятая нужна перед А, НО и перед повторяющимся союзом. Перед одиночным И, ИЛИ — не нужна.",
+   hint:"Запятая нужна перед А, НО и перед повторяющимся союзом; перед одиночным И, ИЛИ — нет."},
+  {t:"commas", sub:"Повторяющиеся союзы", q:"Нажми между словами там, где нужна запятая. Потом нажми «Проверить».",
+   words:["Ни","ветер","ни","холод","не","остановили","наших","болельщиков."], a:[1],
+   why:"«Ни ветер, ни холод не остановили наших болельщиков». Запятая — перед вторым НИ.",
+   hint:"При повторяющемся НИ запятая ставится перед вторым НИ, а перед первым — нет."},
+  {t:"sign", sub:"Повторяющиеся союзы", q:"Выбери, какой знак нужен в клетке.", before:"Младший брат то смеялся", after:"то хмурился.",
+   opts:[",",":","—","без знака"], a:",",
+   why:"«То смеялся, то хмурился» — повторяющийся союз ТО… ТО. Запятая перед вторым ТО.",
+   hint:"Повторяющийся союз: запятая перед вторым и следующими повторами."},
+  {t:"choice", sub:"Повторяющиеся союзы", q:"Где запятые расставлены верно?",
+   opts:["Я поеду или на самокате, или на велосипеде.","Я поеду, или на самокате, или на велосипеде.","Я поеду или на самокате или на велосипеде.","Я поеду или, на самокате, или на велосипеде."], a:0,
+   why:"Перед первым ИЛИ запятая не нужна, перед вторым — нужна.",
+   hint:"Перед первым повторяющимся союзом запятой нет, перед вторым — есть."},
+  {t:"tf", sub:"Повторяющиеся союзы", q:"В ряду «и тетради, и ручки, и ластик» запятая стоит перед каждым И, кроме первого.", a:true,
+   why:"Верно: запятая перед вторым и третьим И, а перед первым — нет.",
+   hint:"Посмотри, где в этом ряду стоят запятые."}
+ ]},
+ {name:"Уровень 3. Пещера двойных союзов",
+  intro:"Тут союзы состоят из двух частей: не только… но и…, как… так и… Запятая ждёт перед второй частью.",
+  outro:"Пещера позади! Двойные союзы проводили тебя не только аплодисментами, но и салютом.",
+  tasks:[
+  {t:"match", sub:"Двойные союзы", q:"Соедини начало союза с его второй частью: нажми слева, потом справа.",
+   pairs:[["не только","но и"],["как","так и"],["не","а"],["ни","ни"]],
+   why:"Не только… но и; как… так и; не… а; ни… ни.",
+   hint:"Скажи вслух: «не только футбол, но и…», «как дети, так и…»."},
+  {t:"commas", sub:"Двойные союзы", q:"Нажми между словами там, где нужна запятая. Потом нажми «Проверить».",
+   words:["Новый","учитель","знает","не","только","физику","но","и","астрономию."], a:[5],
+   why:"«…знает не только физику, но и астрономию». Запятая — перед второй частью союза.",
+   hint:"В двойном союзе запятая ставится перед второй частью: «…, но и…»."},
+  {t:"sign", sub:"Двойные союзы", q:"Выбери, какой знак нужен в клетке.", before:"Этот фильм понравился как детям", after:"так и взрослым.",
+   opts:[",",":","—","без знака"], a:",",
+   why:"«Как детям, так и взрослым» — запятая перед второй частью союза.",
+   hint:"Союз КАК… ТАК И — двойной. Запятая перед «так и»."},
+  {t:"err", sub:"Двойные союзы", q:"Нажми на слово, после которого стоит лишняя запятая.",
+   tokens:["Мы,","не","только","выиграли,","но","и","забили","красивый","гол."], a:0,
+   why:"Правильно: «Мы не только выиграли, но и забили красивый гол». Перед «не только» запятая не нужна.",
+   hint:"Перед первой частью двойного союза запятая не ставится."},
+  {t:"order", sub:"Двойные союзы", q:"Собери предложение по схеме «не только О, но и О»: нажимай на части по порядку.",
+   items:["Мой кот любит","не только рыбу,","но и","огурцы."],
+   why:"«Мой кот любит не только рыбу, но и огурцы». Странный кот, но запятая на месте.",
+   hint:"Первая часть союза стоит перед первым однородным членом, а запятая — перед второй частью."}
+ ]},
+ {name:"Уровень 4. Башня обобщающего слова",
+  intro:"Финал! В башне живут двоеточие и тире. Они очень обижаются, когда их путают.",
+  outro:"Башня покорена! Двоеточие и тире машут тебе с балкона.",
+  tasks:[
+  {t:"sign", sub:"Обобщающее слово", q:"Выбери, какой знак нужен в клетке.", before:"В аквариуме живут разные рыбки", after:"гуппи, неоны и сомик.",
+   opts:[",",":","—","без знака"], a:":",
+   why:"Обобщающее слово «рыбки» стоит перед однородными — ставим двоеточие.",
+   hint:"Обобщающее слово ПЕРЕД однородными — двоеточие, ПОСЛЕ них — тире."},
+  {t:"sign", sub:"Обобщающее слово", q:"Выбери, какой знак нужен в клетке.", before:"Гитара, барабаны, синтезатор", after:"все инструменты уже на сцене.",
+   opts:[",",":","—","без знака"], a:"—",
+   why:"Однородные члены стоят перед обобщающим словом «инструменты» — ставим тире.",
+   hint:"Обобщающее слово ПЕРЕД однородными — двоеточие, ПОСЛЕ них — тире."},
+  {t:"choice", sub:"Обобщающее слово", q:"Где знаки расставлены верно?",
+   opts:["Я люблю все времена года: зиму, весну, лето и осень.","Я люблю все времена года: зиму, весну, лето, и осень.","Я люблю все времена года: зиму весну лето и осень."], a:0,
+   why:"После обобщающего слова — двоеточие, между однородными без союза — запятые, перед одиночным И — ничего.",
+   hint:"Проверь три вещи: двоеточие, запятые между однородными и место перед И."},
+  {t:"tf", sub:"Обобщающее слово", q:"Если однородные члены стоят перед обобщающим словом, перед обобщающим словом ставится тире.", a:true,
+   why:"Верно: «Гитара, барабаны, синтезатор — все инструменты…»",
+   hint:"Вспомни схему «О, О, О — ○»."},
+  {t:"err", sub:"Обобщающее слово", q:"Нажми на слово, после которого стоит неправильный знак.",
+   tokens:["Я","собрал","в","рюкзак","всё,","учебники,","форму","и","бутылку","воды."], a:4,
+   why:"После обобщающего слова «всё» нужно двоеточие: «Я собрал в рюкзак всё: учебники, форму и бутылку воды».",
+   hint:"Найди обобщающее слово. Какой знак должен стоять после него?"}
+ ]}
+];
+
+const PRAISE=["Верно! 🔥","Точно в цель! 🎯","Красиво! ✨","Так держать! 💪","Запятая тобой гордится! 🙌","Без единой помарки! 😎","Уровень грамотности растёт! 📈","Ты сегодня в ударе! ⚡"];
+const OOPS=["Почти! Подумай ещё 🤔","Не-а, но ты близко 🙂","Запятая обиделась, попробуй ещё раз 😅","Мимо, но это поправимо 🔁"];
+
+const ALL=[]; LEVELS.forEach((L,li)=>L.tasks.forEach(t=>{t.level=li;t.id=ALL.length;ALL.push(t);}));
+let S; // state
+const app=document.getElementById("app");
+const $=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
+const esc=s=>String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+
+function reset(){S={mode:"main",queue:ALL.map(t=>t.id),pos:0,first:{},streak:0,best:0,shownIntro:{}};}
+function stat(){
+  const total=S.queue.length, done=Math.min(S.pos,total);
+  document.getElementById("bar").style.width=(total?done/total*100:0)+"%";
+  document.getElementById("stat").innerHTML=(S.mode==="main"?"Задание ":"Ошибка ")+Math.min(done+1,total)+" из "+total+(S.streak>=2?' · <span class="streak">серия '+S.streak+' 🔥</span>':"");
+}
+
+function start(){
+  reset(); app.dataset.task="start";
+  app.innerHTML="";
+  app.append($("div","lvl","Домашнее задание"),$("h1",null,"Однородные члены и запятые при них"),
+    $("p",null,"Тебя ждут 4 уровня игры и 20 заданий. Ошибся — получишь подсказку и сможешь попробовать ещё раз."),
+    $("p",null,"В конце будут звёзды и работа над ошибками. Регистрация не нужна, ничего никуда не отправляется."));
+  const b=$("button","main-btn","Начать квест ▶"); b.onclick=next; app.append(b);
+  document.getElementById("stat").textContent=""; document.getElementById("bar").style.width="0";
+}
+
+function next(){
+  if(S.pos>=S.queue.length){return S.mode==="main"?finish():finishFix();}
+  const t=ALL[S.queue[S.pos]];
+  if(S.mode==="main"&&!S.shownIntro[t.level]){S.shownIntro[t.level]=1;return levelScreen(t.level,true);}
+  render(t);
+}
+function levelScreen(li,isIntro){
+  const L=LEVELS[li]; app.innerHTML=""; app.dataset.task="level"; stat();
+  app.append($("div","lvl",isIntro?"Новый уровень":"Уровень пройден"),$("h1",null,esc(L.name)),$("p",null,esc(isIntro?L.intro:L.outro)));
+  const b=$("button","main-btn",isIntro?"Вперёд ▶":"Дальше ▶");
+  b.onclick=isIntro?()=>render(ALL[S.queue[S.pos]]):next; app.append(b);
+}
+
+let cur=null;
+function render(t){
+  cur={t,tries:0,done:false}; stat(); app.innerHTML="";
+  app.dataset.task=t.id; app.dataset.type=t.t;
+  app.append($("div","lvl",esc(LEVELS[t.level].name)+" · "+esc(t.sub)));
+  app.append($("div","q",esc(t.q)));
+  const body=$("div","body"); app.append(body);
+  const fb=$("div","fb"); fb.id="fb"; app.append(fb);
+  ({choice:rChoice,tf:rTF,sign:rSign,commas:rCommas,err:rErr,sort:rSort,match:rMatch,order:rOrder})[t.t](t,body);
+}
+function feedback(ok,text){
+  const fb=document.getElementById("fb");
+  fb.className="fb show "+(ok?"ok":"no");
+  fb.innerHTML="<b>"+(ok?pick(PRAISE):pick(OOPS))+"</b>"+esc(text);
+}
+function wrong(el){
+  cur.tries++; S.streak=0; stat();
+  if(el){el.classList.add("badc","shake");setTimeout(()=>el.classList.remove("shake"),400);}
+  feedback(false,"Подсказка: "+cur.t.hint);
+}
+function right(){
+  if(cur.done)return; cur.done=true;
+  const t=cur.t;
+  if(S.mode==="main"){S.first[t.id]=cur.tries===0;}
+  else if(cur.tries===0){S.fixed=(S.fixed||0)+1;}
+  if(cur.tries===0){S.streak++;S.best=Math.max(S.best,S.streak);}
+  feedback(true,t.why);
+  app.querySelectorAll("button:not(.main-btn)").forEach(b=>b.disabled=true);
+  S.pos++; stat();
+  const b=$("button","main-btn","Дальше ▶"); b.id="nextBtn";
+  const lastOfLevel=S.mode==="main"&&(S.pos>=S.queue.length||ALL[S.queue[S.pos]].level!==t.level);
+  b.onclick=lastOfLevel?()=>levelScreen(t.level,false):next;
+  app.append(b); b.scrollIntoView({behavior:"smooth",block:"nearest"});
+}
+
+function rChoice(t,body){
+  shuffle(t.opts.map((o,i)=>i)).forEach(i=>{
+    const b=$("button","btn",esc(t.opts[i])); b.dataset.i=i;
+    b.onclick=()=>{ if(cur.done)return; if(i===t.a){b.classList.add("good");right();} else {b.disabled=true;wrong(b);} };
+    body.append(b);
+  });
+}
+function rTF(t,body){
+  const r=$("div","row");
+  [["Верно ✓",true],["Неверно ✗",false]].forEach(([l,v])=>{
+    const b=$("button","btn",l); b.dataset.v=v;
+    b.onclick=()=>{ if(cur.done)return; if(v===t.a){b.classList.add("good");right();} else {b.disabled=true;wrong(b);} };
+    r.append(b);
+  });
+  body.append(r);
+}
+function rSign(t,body){
+  const s=$("div","sent",esc(t.before)+' <span class="slot" id="slot">?</span> '+esc(t.after)); body.append(s);
+  const r=$("div","row");
+  shuffle(t.opts).forEach(o=>{
+    const b=$("button","btn",esc(o)); b.dataset.v=o;
+    b.onclick=()=>{ if(cur.done)return;
+      if(o===t.a){b.classList.add("good");document.getElementById("slot").textContent=o;right();}
+      else {b.disabled=true;wrong(b);} };
+    r.append(b);
+  });
+  body.append(r);
+}
+function rCommas(t,body){
+  const s=$("div","sent"); const on=new Set();
+  t.words.forEach((w,i)=>{
+    s.append($("span","word",esc(w)));
+    if(i<t.words.length-1){
+      const g=$("button","gapb",""); g.dataset.g=i; g.setAttribute("aria-label","место для запятой");
+      g.onclick=()=>{ if(cur.done)return; g.classList.remove("wrongc");
+        if(on.has(i)){on.delete(i);g.classList.remove("on");g.textContent="";} else {on.add(i);g.classList.add("on");g.textContent=",";} };
+      s.append(g);
+    }
+  });
+  body.append(s, $("div","hintsmall","Нажми ещё раз, чтобы убрать запятую."));
+  const c=$("button","sec-btn","Проверить"); c.id="checkBtn";
+  c.onclick=()=>{ if(cur.done)return;
+    const a=new Set(t.a); let ok=on.size===a.size&&[...on].every(x=>a.has(x));
+    if(ok){c.remove();right();}
+    else { s.querySelectorAll(".gapb").forEach(g=>{const i=+g.dataset.g; if(on.has(i)!==a.has(i)&&on.has(i))g.classList.add("wrongc");}); wrong(null); }
+  };
+  body.append(c);
+}
+function rErr(t,body){
+  const s=$("div","sent");
+  t.tokens.forEach((w,i)=>{
+    const b=$("button","tok",esc(w)); b.dataset.i=i;
+    b.onclick=()=>{ if(cur.done)return; if(i===t.a){b.classList.add("good");right();} else {b.disabled=true;wrong(b);} };
+    s.append(b," ");
+  });
+  body.append(s);
+}
+function rSort(t,body){
+  const pool=$("div","pool"); pool.id="pool";
+  const bins=$("div","bins"); let sel=null;
+  const binEls=t.bins.map((name,bi)=>{const b=$("div","bin");b.dataset.bin=bi;b.setAttribute("role","button");b.append($("div","bt",esc(name)));
+    b.onclick=()=>{ if(sel){place(sel,bi);} }; bins.append(b); return b;});
+  function selectChip(c){ if(sel)sel.classList.remove("sel"); sel=(sel===c?null:c); if(sel)sel.classList.add("sel"); }
+  function place(c,bi){
+    c.classList.remove("sel","badc"); sel=null; binEls[bi].append(c); c.dataset.at=bi;
+    if(!pool.querySelector(".chip"))check();
+  }
+  function check(){
+    const bad=[...bins.querySelectorAll(".chip")].filter(c=>+c.dataset.at!==+c.dataset.bin);
+    if(!bad.length){right();return;}
+    bad.forEach(c=>{c.classList.add("badc");pool.append(c);c.dataset.at="";setTimeout(()=>c.classList.remove("badc"),1200);});
+    wrong(null);
+  }
+  shuffle(t.items).forEach(([txt,bi])=>{
+    const c=$("button","chip",esc(txt)); c.dataset.bin=bi;
+    let sx,sy,drag=null,id=null;
+    c.addEventListener("pointerdown",e=>{ if(cur.done)return; sx=e.clientX;sy=e.clientY;id=e.pointerId; try{c.setPointerCapture(id);}catch(_){} });
+    c.addEventListener("pointermove",e=>{ if(id!==e.pointerId||cur.done)return;
+      if(!drag&&Math.hypot(e.clientX-sx,e.clientY-sy)>10){ drag=c.cloneNode(true); drag.classList.add("drag"); document.body.append(drag); c.style.opacity=".35"; }
+      if(drag){ drag.style.left=e.clientX+"px"; drag.style.top=e.clientY+"px";
+        if(e.clientY>innerHeight-70)scrollBy(0,14); else if(e.clientY<70)scrollBy(0,-14);
+        binEls.forEach(b=>b.classList.remove("over")); const u=document.elementFromPoint(e.clientX,e.clientY); const bb=u&&u.closest(".bin"); if(bb)bb.classList.add("over"); }
+    });
+    const end=e=>{ if(id!==e.pointerId)return; id=null;
+      if(drag){ drag.remove(); drag=null; c.style.opacity=""; binEls.forEach(b=>b.classList.remove("over"));
+        const u=document.elementFromPoint(e.clientX,e.clientY); const bb=u&&u.closest(".bin"); if(bb&&!cur.done)place(c,+bb.dataset.bin);
+        c._dragged=true; setTimeout(()=>c._dragged=false,50);
+      }
+    };
+    c.addEventListener("pointerup",end); c.addEventListener("pointercancel",end);
+    c.onclick=e=>{ e.stopPropagation(); if(c._dragged||cur.done)return;
+      if(c.parentElement!==pool){ pool.append(c); c.dataset.at=""; return; }
+      selectChip(c); };
+    pool.append(c);
+  });
+  body.append(pool,bins,$("div","hintsmall","Ошибся с группой? Нажми на сочетание в группе — оно вернётся наверх."));
+}
+function rMatch(t,body){
+  const g=$("div","mgrid"); let selL=null, n=0;
+  const L=shuffle(t.pairs.map((p,i)=>i)), R=shuffle(t.pairs.map((p,i)=>i));
+  for(let k=0;k<t.pairs.length;k++){
+    const l=$("button","btn",esc(t.pairs[L[k]][0])); l.dataset.side="L"; l.dataset.i=L[k];
+    const r=$("button","btn",esc(t.pairs[R[k]][1])); r.dataset.side="R"; r.dataset.i=R[k];
+    l.onclick=()=>{ if(l.dataset.done||cur.done)return; if(selL)selL.classList.remove("chip","sel"); selL=l; l.classList.add("chip","sel"); };
+    r.onclick=()=>{ if(r.dataset.done||cur.done||!selL)return;
+      if(selL.dataset.i===r.dataset.i){ n++; [selL,r].forEach(x=>{x.classList.remove("chip","sel");x.classList.add("pair"+n);x.dataset.done=1;}); selL=null;
+        if(n===t.pairs.length)right(); }
+      else { selL.classList.remove("chip","sel"); selL=null; wrong(r); setTimeout(()=>r.classList.remove("badc"),900); } };
+    g.append(l,r);
+  }
+  body.append(g);
+}
+function rOrder(t,body){
+  const list=$("div","olist"), rest=$("div",""); const chosen=[];
+  const idx=shuffle(t.items.map((x,i)=>i));
+  function draw(){
+    list.innerHTML=""; chosen.forEach((i,k)=>{const d=$("button","oitem");d.dataset.i=i;d.innerHTML='<span class="n">'+(k+1)+'</span><span>'+esc(t.items[i])+'</span>';
+      d.onclick=()=>{ if(cur.done)return; chosen.splice(k,1); draw(); }; list.append(d);});
+    rest.innerHTML=""; idx.filter(i=>!chosen.includes(i)).forEach(i=>{const b=$("button","btn",esc(t.items[i]));b.dataset.i=i;
+      b.onclick=()=>{ if(cur.done)return; chosen.push(i); draw(); if(chosen.length===t.items.length)check(); }; rest.append(b);});
+  }
+  function check(){
+    if(chosen.every((v,k)=>v===k)){right();}
+    else { list.querySelectorAll(".oitem").forEach((d,k)=>{ if(+d.dataset.i!==k)d.classList.add("badc"); }); wrong(null);
+      setTimeout(()=>{ if(!cur.done){chosen.length=0;draw();} },1400); }
+  }
+  draw(); body.append(list,rest,$("div","hintsmall","Нажми на выбранный шаг, чтобы убрать его."));
+}
+
+function dateStr(){return new Date().toLocaleDateString("ru-RU",{day:"numeric",month:"long",year:"numeric"});}
+function finish(){
+  const total=ALL.length, ok=ALL.filter(t=>S.first[t.id]).length, pct=Math.round(ok/total*100);
+  const stars=pct>=90?3:pct>=60?2:1;
+  const errs=ALL.filter(t=>!S.first[t.id]);
+  app.innerHTML=""; document.getElementById("bar").style.width="100%"; document.getElementById("stat").textContent="Квест пройден!";
+  app.dataset.task="final";
+  app.append($("div","lvl","Итог · "+dateStr()),$("h1",null,"Все 4 уровня пройдены! 🏆"),
+    $("div","stars","⭐".repeat(stars)+"☆".repeat(3-stars)),
+    $("div","big",ok+" из "+total),$("p",null,"правильно с первой попытки ("+pct+"%). Лучшая серия: "+S.best+"."));
+  const msg=stars===3?"Однородные члены тебя боятся. В хорошем смысле.":stars===2?"Хороший результат! Ещё немного — и запятые будут слушаться с полуслова.":"Начало положено! Пройди работу над ошибками — это быстрее, чем кажется.";
+  app.append($("p",null,msg));
+  if(errs.length){
+    const subs=[...new Set(errs.map(t=>t.sub))];
+    app.append($("p",null,"<b>Стоит повторить:</b> "+subs.map(esc).join(", ")+"."));
+  }
+  app.append($("div","shot","📸 Сделай скриншот этого экрана и отправь учителю."));
+  if(errs.length){const b=$("button","main-btn","Работа над ошибками ("+errs.length+")");b.id="fixBtn";
+    b.onclick=()=>{S.mode="fix";S.queue=shuffle(errs.map(t=>t.id));S.pos=0;S.fixed=0;next();}; app.append(b);}
+  const r=$("button","sec-btn","Начать заново"); r.id="restartBtn"; r.onclick=start; app.append(r);
+}
+function finishFix(){
+  app.innerHTML=""; app.dataset.task="fixfinal"; document.getElementById("stat").textContent="Ошибки исправлены";
+  app.append($("div","lvl","Работа над ошибками · "+dateStr()),$("h1",null,"Ошибки исправлены! 💪"),
+    $("p",null,"Повторено заданий: "+S.queue.length+". С первой попытки в этот раз: "+(S.fixed||0)+"."),
+    $("div","shot","📸 Сделай скриншот и этого экрана — учителю будет приятно."));
+  const r=$("button","main-btn","Начать заново"); r.id="restartBtn"; r.onclick=start; app.append(r);
+}
+start();
+</script>
+</body>
+</html>
